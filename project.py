@@ -34,17 +34,21 @@ def main():
         try:  # update README.md for this
             # deadline_str = input("Enter the deadline (YYYY-MM-DD): ")
             deadline_str = sys.argv[3]
-            if not re.search(r"\d+-\d+-\d+", deadline_str):
+            if not re.search(r"202[4-9]-(?:0?[1-9]|1[0-2])-(?:0?[1-9]|1[0-9]|2[0-9]|3[0-1])", deadline_str):
                 raise ValueError
             year, mon, da = deadline_str.split("-")
             year, mon, da = int(year), int(mon), int(da)
             deadline = date(year, mon, da)
+            today = date.today()
+            total_days = (deadline - today).days
+            if total_days <= 0:
+                raise ValueError
             break
         except ValueError:
-            print("Invalid date. Please enter a valid date in the format YYYY-MM-DD.")
+            print("Invalid date. Please enter a valid Future date in the format YYYY-MM-DD.")
 
     # Generate the Study Schedule
-    study_plan = schedule_study(topics, hours_per_day, deadline)
+    study_plan = schedule_study(topics, hours_per_day, total_days)
     for topic, hours in study_plan.items():
         hours_int = int(hours)
         minutes = int(round((hours - hours_int) * 60))
@@ -56,12 +60,7 @@ def main():
             print(f"{topic}: {hours_int} hours {minutes} minutes per day")
 
 
-def schedule_study(topics, hours_per_day, deadline):
-    today = date.today()
-    total_days = (deadline - today).days
-    if total_days <= 0:
-        sys.exit("Deadline must be in the future.")
-
+def schedule_study(topics, hours_per_day, total_days):
     total_hours = total_days * hours_per_day
     hours_per_topic = total_hours / len(topics)
     study_plan = {}
