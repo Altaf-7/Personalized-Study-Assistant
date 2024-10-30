@@ -2,7 +2,7 @@ from datetime import date
 import sys
 import re
 
-
+# Main function to run the program
 def main():
     print("Welcome to the Personalized Study Assistant!")
     # topics_raw = input("Please enter the topics you want to study (comma-separated): ").split(",")
@@ -10,7 +10,7 @@ def main():
     topics = {}
     for topic in topics_raw:
         while True:
-            try:
+            try: #update README.md for this
                 weightage_raw = int(input(f'How important is "{topic.strip()}" on a scale of 1 to 5? ').strip())
                 if weightage_raw not in range(1,6):
                     raise ValueError
@@ -68,6 +68,7 @@ def main():
             print(f"{topic}: {hours_int} hours {minutes} minutes per day")
 
 
+# Function to generate a study schedule
 def schedule_study(topics, hours_per_day, total_days):
     total_hours = total_days * hours_per_day
     study_plan = {}
@@ -79,9 +80,11 @@ def schedule_study(topics, hours_per_day, total_days):
     return study_plan
 
 
+# Function to track progress
 def track_progress(study_plan, topic, hours_spent): ...
 
 
+# Function to generate a progress report
 def generate_report(study_plan, deadline): ...
 
 
