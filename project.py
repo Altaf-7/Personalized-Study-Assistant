@@ -7,9 +7,17 @@ def main():
     print("Welcome to the Personalized Study Assistant!")
     # topics_raw = input("Please enter the topics you want to study (comma-separated): ").split(",")
     topics_raw = sys.argv[1].split(",")
-    topics = []
+    topics = {}
     for topic in topics_raw:
-        topics.append(topic.strip())
+        while True:
+            try:
+                weightage_raw = int(input(f'How important is "{topic.strip()}" on a scale of 1 to 5? ').strip())
+                if weightage_raw not in range(1,6):
+                    raise ValueError
+                topics[topic.strip()] = weightage_raw
+                break
+            except ValueError:
+                pass
 
     while True:
         # hours_per_day = float(input("How many hours can you study per day? "))
@@ -62,10 +70,10 @@ def main():
 
 def schedule_study(topics, hours_per_day, total_days):
     total_hours = total_days * hours_per_day
-    hours_per_topic = total_hours / len(topics)
     study_plan = {}
-    for topic in topics:
-        study_plan[topic] = round(hours_per_topic / total_days, 2)
+    total_weight = sum(topics.values())
+    for topic in topics.keys():
+        study_plan[topic] = round(total_hours * topics[topic] / total_weight / total_days, 2)
     print("Your study schedule has been created!")
     print(f"For next {total_days} days:- ")
     return study_plan
