@@ -27,13 +27,8 @@ def main():
                 print(
                     "Warning: Studying more than 12 hours a day may cause some health issues in the long run."
                 )
-                # add this as a feature in README.md
-                while True:
-                    confirmation = input("wish to continue? (yes/no): ")
-                    if confirmation == "yes":
-                        break
-                    elif confirmation == "no":
-                        sys.exit()
+                print("Please Reconsider and go for less.")
+                continue
             break
         else:
             print("Enter proper hours you can study")
@@ -42,7 +37,7 @@ def main():
         try:  # update README.md for this
             # deadline_str = input("Enter the deadline (YYYY-MM-DD): ")
             deadline_str = sys.argv[3]
-            if not re.search(r"202[4-9]-(?:0?[1-9]|1[0-2])-(?:0?[1-9]|1[0-9]|2[0-9]|3[0-1])", deadline_str):
+            if not re.search(r"^(?:202[4-9])-(?:0?[1-9]|1[0-2])-(?:0?[1-9]|1[0-9]|2[0-9]|3[0-1])$", deadline_str):
                 raise ValueError
             year, mon, da = deadline_str.split("-")
             year, mon, da = int(year), int(mon), int(da)
@@ -61,6 +56,7 @@ def main():
     for topic, hours in study_plan.items():
         hours_int = int(hours)
         minutes = int(round((hours - hours_int) * 60))
+        study_plan[topic] = f"{hours_int}:{minutes:02}"
         if minutes == 0:
             print(f"{topic}\t: {hours_int} hours per day")
         elif hours_int == 0:
@@ -73,15 +69,22 @@ def main():
     # Track progress
     while True:
         print("Log your study progress or type 'exit' to quit:")
-        topic = input("Which topic did you study? (or 'exit'): ").strip()
+        topic = input("Which topic did you study? (or 'exit'): ").strip().lower()
         if topic == 'exit':
             break
         if topic not in study_plan.keys():
             print("Topic not found! Please try again.")
             continue
-        hours_spent = float(input(f'How many hours did you study for "{topic}" (in float) ? '))
-        track_progress(study_plan, topic, hours_spent)
-
+        while True:
+            hours_spent = input(f'How many hours did you study for "{topic}" (HH:MM) ? ').strip()
+            if not re.search(r"^(0?[0-9]|1[0-2]):(0?[0-9]|[1-5][0-9])$",hours_spent):
+                print("Please enter a valid time in HH:MM")
+                continue
+            break
+        study_plan = track_progress(study_plan, topic, hours_spent)
+        if all(value == "0:00" for value in study_plan.values()):
+            print("Done for today, Go have fun...\n")
+            break
 
 # Function to generate a study schedule
 def schedule_study(topics, hours_per_day, total_days):
@@ -97,11 +100,50 @@ def schedule_study(topics, hours_per_day, total_days):
 
 
 # Function to track progress
-def track_progress(study_plan, topic, hours_spent):
-    # Reduce the remaining time for the topic
+def track_progress(study_plan, topic, time_studied):
     if topic in study_plan.keys():
-        ...
-        
+        study_plan_hour_int, study_plan_minutes = study_plan[topic].split(":")
+        study_plan_hour_int, study_plan_minutes = int(study_plan_hour_int), int(study_plan_minutes)
+        time_studied_hours, time_studied_mins = time_studied.split(":")
+        time_studied_hours, time_studied_mins = int(time_studied_hours), int(time_studied_mins)
+        print()
+
+        if time_studied_hours > study_plan_hour_int:
+            print(f'You have Studied "{topic}" excess than Scheduled time.')
+            study_plan_hour_int = 0
+            study_plan_minutes = 0
+        elif time_studied_hours == study_plan_hour_int:
+            if time_studied_mins > study_plan_minutes:
+                print(f'You have Studied "{topic}" excess than Scheduled time.')
+                study_plan_hour_int = 0
+                study_plan_minutes = 0
+            elif time_studied_mins == study_plan_minutes:
+                print(f'''You Accomplished today's goal for topic "{topic}".''')
+                study_plan_hour_int = 0
+                study_plan_minutes = 0
+            else:
+                study_plan_hour_int = 0
+                study_plan_minutes -= time_studied_mins
+        else:
+            if time_studied_mins > study_plan_minutes:
+                study_plan_hour_int -=1
+                study_plan_minutes = 60 + study_plan_minutes - time_studied_mins
+            elif time_studied_mins == study_plan_minutes:
+                study_plan_hour_int = study_plan_hour_int - time_studied_hours
+                study_plan_minutes = 0
+            else:
+                study_plan_hour_int = study_plan_hour_int - time_studied_hours
+                study_plan_minutes -= time_studied_mins
+
+
+        study_plan[topic] = f"{study_plan_hour_int}:{study_plan_minutes:02}"
+        if study_plan_minutes == 0:
+            print(f'Progress for "{topic}" updated. {study_plan_hour_int} hours remaining for "{topic}" today.')
+        elif study_plan_hour_int == 0:
+            print(f'Progress for "{topic}" updated. {study_plan_minutes} mins remaining for "{topic}" today.')
+        else:
+            print(f'Progress for "{topic}" updated. {study_plan_hour_int} hours and {study_plan_minutes} mins remaining for "{topic}" today.')
+        return study_plan
     else:
         print(f'Topic "{topic}" not found in the study plan.')
 
