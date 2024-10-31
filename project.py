@@ -55,17 +55,32 @@ def main():
         except ValueError:
             print("Invalid date. Please enter a valid Future date in the format YYYY-MM-DD.")
 
+
     # Generate the Study Schedule
     study_plan = schedule_study(topics, hours_per_day, total_days)
     for topic, hours in study_plan.items():
         hours_int = int(hours)
         minutes = int(round((hours - hours_int) * 60))
         if minutes == 0:
-            print(f"{topic}: {hours_int} hours per day")
+            print(f"{topic}\t: {hours_int} hours per day")
         elif hours_int == 0:
-            print(f"{topic}: {minutes} minutes per day")
+            print(f"{topic}\t: {minutes} minutes per day")
         else:
-            print(f"{topic}: {hours_int} hours {minutes} minutes per day")
+            print(f"{topic}\t: {hours_int} hours {minutes} minutes per day")
+    print("-"*108)
+
+
+    # Track progress
+    while True:
+        print("Log your study progress or type 'exit' to quit:")
+        topic = input("Which topic did you study? (or 'exit'): ").strip()
+        if topic == 'exit':
+            break
+        if topic not in study_plan.keys():
+            print("Topic not found! Please try again.")
+            continue
+        hours_spent = float(input(f'How many hours did you study for "{topic}" (in float) ? '))
+        track_progress(study_plan, topic, hours_spent)
 
 
 # Function to generate a study schedule
@@ -75,13 +90,20 @@ def schedule_study(topics, hours_per_day, total_days):
     total_weight = sum(topics.values())
     for topic in topics.keys():
         study_plan[topic] = round(total_hours * topics[topic] / total_weight / total_days, 2)
-    print("Your study schedule has been created!")
-    print(f"For next {total_days} days:- ")
+    print("-"*108)
+    print("Your Study Schedule has been Created!")
+    print(f"For Next {total_days} Days:- ")
     return study_plan
 
 
 # Function to track progress
-def track_progress(study_plan, topic, hours_spent): ...
+def track_progress(study_plan, topic, hours_spent):
+    # Reduce the remaining time for the topic
+    if topic in study_plan.keys():
+        ...
+        
+    else:
+        print(f'Topic "{topic}" not found in the study plan.')
 
 
 # Function to generate a progress report
