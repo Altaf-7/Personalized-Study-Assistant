@@ -63,13 +63,13 @@ How important is "Physics" on a scale of 1 to 5? 3
 How important is "Biology" on a scale of 1 to 5? 1
 How many hours can you study per day? 4
 Enter the deadline (YYYY-MM-DD): 2024-11-10
-----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------
 Your Study Schedule has been Created!
 For Next 10 Days:- 
 Maths     : 2 hours per day
 Physics   : 1 hours 30 minutes per day
 Biology   : 30 minutes per day
-----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------
 
 Log your study progress or type 'exit' to quit:
 ```
