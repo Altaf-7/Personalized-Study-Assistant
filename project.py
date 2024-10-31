@@ -9,7 +9,7 @@ def main():
     topics = {}
     for topic in topics_raw:
         while True:
-            try: #update README.md for this
+            try:
                 weightage_raw = int(input(f'How important is "{topic.strip()}" on a scale of 1 to 5? ').strip())
                 if weightage_raw not in range(1,6):
                     raise ValueError
@@ -21,16 +21,19 @@ def main():
 
     # Valadation of Hours To Study and also to check if its under 12 for well being
     while True:
-        hours_per_day = float(input("How many hours can you study per day? "))
-        if 0 < hours_per_day < 24:
-            if hours_per_day > 12:
-                print(
-                    "Warning: Studying more than 12 hours a day may cause some health issues in the long run."
-                )
-                print("Please Reconsider and go for less.")
-                continue
-            break
-        else:
+        try:
+            hours_per_day = float(input("How many hours can you study per day? "))
+            if 0 < hours_per_day < 24:
+                if hours_per_day > 12:
+                    print(
+                        "Warning: Studying more than 12 hours a day may cause some health issues in the long run."
+                    )
+                    print("Please Reconsider and go for less.")
+                    continue
+                break
+            else:
+                print("Enter proper hours you can study")
+        except ValueError:
             print("Enter proper hours you can study")
 
 
@@ -59,11 +62,11 @@ def main():
         minutes = int(round((hours - hours_int) * 60))
         study_plan[topic] = f"{hours_int}:{minutes:02}"
         if minutes == 0:
-            print(f"{topic}\t: {hours_int} hours per day")
+            print(f"{topic}\t  : {hours_int} hours per day")
         elif hours_int == 0:
-            print(f"{topic}\t: {minutes} minutes per day")
+            print(f"{topic}\t  : {minutes} minutes per day")
         else:
-            print(f"{topic}\t: {hours_int} hours {minutes} minutes per day")
+            print(f"{topic}\t  : {hours_int} hours {minutes} minutes per day")
     print("-"*108)
 
 
