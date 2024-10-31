@@ -5,8 +5,7 @@ import re
 # Main function to run the program
 def main():
     print("Welcome to the Personalized Study Assistant!")
-    # topics_raw = input("Please enter the topics you want to study (comma-separated): ").split(",")
-    topics_raw = sys.argv[1].split(",")
+    topics_raw = input("Please enter the topics you want to study (comma-separated): ").split(",")
     topics = {}
     for topic in topics_raw:
         while True:
@@ -19,9 +18,10 @@ def main():
             except ValueError:
                 pass
 
+
+    # Valadation of Hours To Study and also to check if its under 12 for well being
     while True:
-        # hours_per_day = float(input("How many hours can you study per day? "))
-        hours_per_day = float(sys.argv[2])
+        hours_per_day = float(input("How many hours can you study per day? "))
         if 0 < hours_per_day < 24:
             if hours_per_day > 12:
                 print(
@@ -33,10 +33,11 @@ def main():
         else:
             print("Enter proper hours you can study")
 
+
+    # Valdatition of Date in correct format, also for date in future 
     while True:
-        try:  # update README.md for this
-            # deadline_str = input("Enter the deadline (YYYY-MM-DD): ")
-            deadline_str = sys.argv[3]
+        try:
+            deadline_str = input("Enter the deadline (YYYY-MM-DD): ")
             if not re.search(r"^(?:202[4-9])-(?:0?[1-9]|1[0-2])-(?:0?[1-9]|1[0-9]|2[0-9]|3[0-1])$", deadline_str):
                 raise ValueError
             year, mon, da = deadline_str.split("-")
@@ -68,7 +69,7 @@ def main():
 
     # Track progress
     while True:
-        print("Log your study progress or type 'exit' to quit:")
+        print("\nLog your study progress or type 'exit' to quit:")
         topic = input("Which topic did you study? (or 'exit'): ").strip().lower()
         if topic == 'exit':
             break
@@ -85,6 +86,17 @@ def main():
         if all(value == "0:00" for value in study_plan.values()):
             print("Done for today, Go have fun...\n")
             break
+
+
+    # Optionally generate a report after progress
+    while True:
+        report = input("\nWould you like to see a progress report? (y/n): ").lower()
+        if report == 'y':
+            generate_report(study_plan, deadline)
+            break
+        elif report == 'n':
+            break
+
 
 # Function to generate a study schedule
 def schedule_study(topics, hours_per_day, total_days):
@@ -106,15 +118,15 @@ def track_progress(study_plan, topic, time_studied):
         study_plan_hour_int, study_plan_minutes = int(study_plan_hour_int), int(study_plan_minutes)
         time_studied_hours, time_studied_mins = time_studied.split(":")
         time_studied_hours, time_studied_mins = int(time_studied_hours), int(time_studied_mins)
-        print()
+        "\n"
 
         if time_studied_hours > study_plan_hour_int:
-            print(f'You have Studied "{topic}" excess than Scheduled time.')
+            print(f'\nYou have Studied "{topic}" excess than Scheduled time.')
             study_plan_hour_int = 0
             study_plan_minutes = 0
         elif time_studied_hours == study_plan_hour_int:
             if time_studied_mins > study_plan_minutes:
-                print(f'You have Studied "{topic}" excess than Scheduled time.')
+                print(f'\nYou have Studied "{topic}" excess than Scheduled time.')
                 study_plan_hour_int = 0
                 study_plan_minutes = 0
             elif time_studied_mins == study_plan_minutes:
@@ -135,7 +147,7 @@ def track_progress(study_plan, topic, time_studied):
                 study_plan_hour_int = study_plan_hour_int - time_studied_hours
                 study_plan_minutes -= time_studied_mins
 
-
+        #update the study hours per input
         study_plan[topic] = f"{study_plan_hour_int}:{study_plan_minutes:02}"
         if study_plan_minutes == 0:
             print(f'Progress for "{topic}" updated. {study_plan_hour_int} hours remaining for "{topic}" today.')
@@ -149,7 +161,26 @@ def track_progress(study_plan, topic, time_studied):
 
 
 # Function to generate a progress report
-def generate_report(study_plan, deadline): ...
+def generate_report(study_plan, deadline):
+    "\n"
+    print("*"*108)
+    print("Progress Report:")
+    for topic, time in study_plan.items():
+        hours, mins = time.split(":")
+        hours, mins = int(hours), int(mins)
+        if hours == 0 and mins == 0:
+            print(f"{topic} Completed.")
+        elif hours > 0 or mins > 0:
+            print(f"{topic} On track")
+            if hours == 0:
+                print(f'{mins} mins remaining for today.')
+            elif mins == 0:
+                print(f'{hours} hours remaining for today.')
+            else:
+                print(f'{hours} hours and {mins} mins remaining for today.')
+    days_remaining = (deadline - date.today()).days
+    print(f"Days remaining until the deadline: {days_remaining}")
+    print("*"*108)
 
 
 if __name__ == "__main__":
