@@ -1,4 +1,8 @@
 # Personalized Study Assistant
+## Video Demo
+```bash
+https://youtu.be/t6VhF3_x6Eo
+```
 
 ## Project Overview
 The **Personalized Study Assistant** is a Python-based application designed to help users create and manage a personalized study schedule. The program allows users to input their study topics,define priority of topics, define daily study hours, set deadlines, and track their progress. It dynamically adjusts the study plan based on progress and generates reports to guide the user toward achieving their study goals efficiently.
