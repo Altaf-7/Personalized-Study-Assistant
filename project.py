@@ -1,12 +1,10 @@
 from datetime import date
-import sys
 import re
 
 # Main function to run the program
 def main():
     print("Welcome to the Personalized Study Assistant!")
     topics_raw = input("Please enter the topics you want to study (comma-separated): ").split(",")
-    # topics_raw = sys.argv[1].split(",")
     topics = {}
     for topic in topics_raw:
         while True:
@@ -24,7 +22,6 @@ def main():
     while True:
         try:
             hours_per_day = float(input("How many hours can you study per day? "))
-            # hours_per_day = float(sys.argv[2])
             if 0 < hours_per_day < 24:
                 if hours_per_day > 12:
                     print(
@@ -43,7 +40,6 @@ def main():
     while True:
         try:
             deadline_str = input("Enter the deadline (YYYY-MM-DD): ")
-            # deadline_str = sys.argv[3]
             if not re.search(r"^(?:202[4-9])-(?:0?[1-9]|1[0-2])-(?:0?[1-9]|1[0-9]|2[0-9]|3[0-1])$", deadline_str):
                 raise ValueError
             year, mon, da = deadline_str.split("-")
