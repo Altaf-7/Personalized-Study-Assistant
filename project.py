@@ -6,6 +6,7 @@ import re
 def main():
     print("Welcome to the Personalized Study Assistant!")
     topics_raw = input("Please enter the topics you want to study (comma-separated): ").split(",")
+    # topics_raw = sys.argv[1].split(",")
     topics = {}
     for topic in topics_raw:
         while True:
@@ -23,6 +24,7 @@ def main():
     while True:
         try:
             hours_per_day = float(input("How many hours can you study per day? "))
+            # hours_per_day = float(sys.argv[2])
             if 0 < hours_per_day < 24:
                 if hours_per_day > 12:
                     print(
@@ -41,6 +43,7 @@ def main():
     while True:
         try:
             deadline_str = input("Enter the deadline (YYYY-MM-DD): ")
+            # deadline_str = sys.argv[3]
             if not re.search(r"^(?:202[4-9])-(?:0?[1-9]|1[0-2])-(?:0?[1-9]|1[0-9]|2[0-9]|3[0-1])$", deadline_str):
                 raise ValueError
             year, mon, da = deadline_str.split("-")
@@ -58,9 +61,7 @@ def main():
     # Generate the Study Schedule
     study_plan = schedule_study(topics, hours_per_day, total_days)
     for topic, hours in study_plan.items():
-        hours_int = int(hours)
-        minutes = int(round((hours - hours_int) * 60))
-        study_plan[topic] = f"{hours_int}:{minutes:02}"
+        hours_int, minutes = hours.split(":")
         if minutes == 0:
             print(f"{topic}\t  : {hours_int} hours per day")
         elif hours_int == 0:
@@ -73,7 +74,7 @@ def main():
     # Track progress
     while True:
         print("\nLog your study progress or type 'exit' to quit:")
-        topic = input("Which topic did you study? (or 'exit'): ").strip().lower()
+        topic = input("Which topic did you study? (or 'exit'): ").strip()
         if topic == 'exit':
             break
         if topic not in study_plan.keys():
@@ -105,9 +106,12 @@ def main():
 def schedule_study(topics, hours_per_day, total_days):
     total_hours = total_days * hours_per_day
     study_plan = {}
-    total_weight = sum(topics.values())
-    for topic in topics.keys():
-        study_plan[topic] = round(total_hours * topics[topic] / total_weight / total_days, 2)
+    total_weightage = sum(topics.values())
+    for topic, weightage in topics.items():
+        time = round(total_hours * weightage / total_weightage / total_days, 2)
+        hours_int = int(time)
+        minutes = int(round((time - hours_int) * 60))
+        study_plan[topic] = f"{hours_int}:{minutes:02}"
     print("-"*108)
     print("Your Study Schedule has been Created!")
     print(f"For Next {total_days} Days:- ")
@@ -116,51 +120,51 @@ def schedule_study(topics, hours_per_day, total_days):
 
 # Function to track progress
 def track_progress(study_plan, topic, time_studied):
-    if topic in study_plan.keys():
-        study_plan_hour_int, study_plan_minutes = study_plan[topic].split(":")
-        study_plan_hour_int, study_plan_minutes = int(study_plan_hour_int), int(study_plan_minutes)
-        time_studied_hours, time_studied_mins = time_studied.split(":")
-        time_studied_hours, time_studied_mins = int(time_studied_hours), int(time_studied_mins)
-        "\n"
+    study_plan_hour_int, study_plan_minutes = study_plan[topic].split(":")
+    study_plan_hour_int, study_plan_minutes = int(study_plan_hour_int), int(study_plan_minutes)
+    time_studied_hours, time_studied_mins = time_studied.split(":")
+    time_studied_hours, time_studied_mins = int(time_studied_hours), int(time_studied_mins)
+    "\n"
 
-        if time_studied_hours > study_plan_hour_int:
+    if time_studied_hours > study_plan_hour_int:
+        print(f'\nYou have Studied "{topic}" excess than Scheduled time.')
+        study_plan_hour_int = 0
+        study_plan_minutes = 0
+    elif time_studied_hours == study_plan_hour_int:
+        if time_studied_mins > study_plan_minutes:
             print(f'\nYou have Studied "{topic}" excess than Scheduled time.')
             study_plan_hour_int = 0
             study_plan_minutes = 0
-        elif time_studied_hours == study_plan_hour_int:
-            if time_studied_mins > study_plan_minutes:
-                print(f'\nYou have Studied "{topic}" excess than Scheduled time.')
-                study_plan_hour_int = 0
-                study_plan_minutes = 0
-            elif time_studied_mins == study_plan_minutes:
-                print(f'''You Accomplished today's goal for topic "{topic}".''')
-                study_plan_hour_int = 0
-                study_plan_minutes = 0
-            else:
-                study_plan_hour_int = 0
-                study_plan_minutes -= time_studied_mins
+        elif time_studied_mins == study_plan_minutes:
+            print(f'''You Accomplished today's goal for topic "{topic}".''')
+            study_plan_hour_int = 0
+            study_plan_minutes = 0
         else:
-            if time_studied_mins > study_plan_minutes:
-                study_plan_hour_int -=1
-                study_plan_minutes = 60 + study_plan_minutes - time_studied_mins
-            elif time_studied_mins == study_plan_minutes:
-                study_plan_hour_int = study_plan_hour_int - time_studied_hours
-                study_plan_minutes = 0
-            else:
-                study_plan_hour_int = study_plan_hour_int - time_studied_hours
-                study_plan_minutes -= time_studied_mins
-
-        #update the study hours per input
-        study_plan[topic] = f"{study_plan_hour_int}:{study_plan_minutes:02}"
-        if study_plan_minutes == 0:
-            print(f'Progress for "{topic}" updated. {study_plan_hour_int} hours remaining for "{topic}" today.')
-        elif study_plan_hour_int == 0:
-            print(f'Progress for "{topic}" updated. {study_plan_minutes} mins remaining for "{topic}" today.')
-        else:
-            print(f'Progress for "{topic}" updated. {study_plan_hour_int} hours and {study_plan_minutes} mins remaining for "{topic}" today.')
-        return study_plan
+            study_plan_hour_int = 0
+            study_plan_minutes -= time_studied_mins
     else:
-        print(f'Topic "{topic}" not found in the study plan.')
+        if time_studied_mins > study_plan_minutes:
+            study_plan_hour_int -=1
+            study_plan_minutes = 60 + study_plan_minutes - time_studied_mins
+            study_plan_hour_int -=time_studied_hours
+            if study_plan_hour_int < 0:
+                study_plan_hour_int = 0
+        elif time_studied_mins == study_plan_minutes:
+            study_plan_hour_int -=time_studied_hours
+            study_plan_minutes = 0
+        else:
+            study_plan_hour_int -=time_studied_hours
+            study_plan_minutes -= time_studied_mins
+
+    #update the study hours per input
+    study_plan[topic] = f"{study_plan_hour_int}:{study_plan_minutes:02}"
+    if study_plan_minutes == 0:
+        print(f'Progress for "{topic}" updated. {study_plan_hour_int} hours remaining for "{topic}" today.')
+    elif study_plan_hour_int == 0:
+        print(f'Progress for "{topic}" updated. {study_plan_minutes} mins remaining for "{topic}" today.')
+    else:
+        print(f'Progress for "{topic}" updated. {study_plan_hour_int} hours and {study_plan_minutes} mins remaining for "{topic}" today.')
+    return study_plan
 
 
 # Function to generate a progress report
