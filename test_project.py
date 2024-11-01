@@ -1,6 +1,7 @@
 from project import schedule_study, track_progress, generate_report
 from datetime import date
-import pytest
+from io import StringIO
+import sys
 
 
 # hours_per_day and total_days are getting checked for correction in main(), so no need to check here
@@ -55,5 +56,38 @@ def test_track_progress():
         "loops","2:25") == {"loops": "0:00", "functions": "1:55", "exception handling": "0:55", "classes & objects": "1:35"}
 
 
-# def test_generate_report():
-#     ...
+#as this function does not return but prints an sequence of string we have to use StringIO() from io library
+def test_generate_report():
+    captured_output = StringIO()
+    sys.stdout = captured_output
+
+    generate_report({"Math": "2:00", "Science": "1:30", "Computer": "0:00"}, date(2024, 11, 25))
+    sys.stdout = sys.__stdout__
+
+    output = captured_output.getvalue()
+    assert "Progress Report:" in output
+    assert "Math On track" in output
+    assert "2 hours remaining for today." in output
+    assert "Science On track" in output
+    assert "1 hours and 30 mins remaining for today." in output
+    assert "Computer Completed." in output
+    assert f"Days remaining until the deadline: {(date(2024, 11, 25) - date.today()).days}" in output
+
+
+    captured_output = StringIO()
+    sys.stdout = captured_output    
+
+    generate_report({"loops": "0:00", "functions": "1:05", "exception handling": "0:55", "classes & objects": "1:15"}, date(2024, 12, 31))
+    sys.stdout = sys.__stdout__
+
+    output = captured_output.getvalue()
+    assert "Progress Report:" in output
+    assert "loops Completed." in output
+    assert "functions On track" in output
+    assert "1 hours and 5 mins remaining for today." in output
+    assert "exception handling On track" in output
+    assert "55 mins remaining for today." in output
+    assert "classes & objects On track" in output
+    assert "1 hours and 15 mins remaining for today." in output
+    assert f"Days remaining until the deadline: {(date(2024, 12, 31) - date.today()).days}" in output
+    
